@@ -5,8 +5,6 @@
  */
 package App;
 
-import controlador.Conexion;
-import entidades.Empleado;
 import vistas.LogIn;
 
 /**
@@ -16,10 +14,6 @@ import vistas.LogIn;
 public class App {
     
     public static void main(String[] args) {
-        
-//        Conexion conexion = Conexion.getInstance();
-//        Empleado empleado = conexion.getEm().find(Empleado.class, 1);
-//        System.out.println(empleado);
         
         LogIn logIn = new LogIn();
         logIn.setVisible(true);
