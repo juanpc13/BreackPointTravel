@@ -6,9 +6,8 @@
 package App;
 
 import controlador.Conexion;
-import controlador.EmpleadoJpaController;
 import entidades.Empleado;
-import java.util.List;
+import vistas.LogIn;
 
 /**
  *
@@ -18,11 +17,12 @@ public class App {
     
     public static void main(String[] args) {
         
-        Conexion conexion = Conexion.getInstance();
+//        Conexion conexion = Conexion.getInstance();
+//        Empleado empleado = conexion.getEm().find(Empleado.class, 1);
+//        System.out.println(empleado);
         
-        EmpleadoJpaController ejc = new EmpleadoJpaController(conexion.getEmf());
-        List<Empleado> empleados = ejc.findEmpleadoEntities();
-        System.out.println(empleados);
+        LogIn logIn = new LogIn();
+        logIn.setVisible(true);
         
     }
     

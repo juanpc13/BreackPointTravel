@@ -170,7 +170,7 @@ public class Empleado implements Serializable {
 
     @Override
     public String toString() {
-        return "com.mycompany.breackpointtravel.Empleado[ idEmpleado=" + idEmpleado + " ]";
+        return "Empleado[ idEmpleado=" + idEmpleado + " ]";
     }
     
 }

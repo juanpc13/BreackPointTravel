@@ -144,7 +144,7 @@ public class Cliente implements Serializable {
 
     @Override
     public String toString() {
-        return "com.mycompany.breackpointtravel.Cliente[ idCliente=" + idCliente + " ]";
+        return "Cliente[ idCliente=" + idCliente + " ]";
     }
     
 }

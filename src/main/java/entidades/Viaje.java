@@ -148,7 +148,7 @@ public class Viaje implements Serializable {
 
     @Override
     public String toString() {
-        return "com.mycompany.breackpointtravel.Viaje[ idViaje=" + idViaje + " ]";
+        return "Viaje[ idViaje=" + idViaje + " ]";
     }
     
 }
