@@ -199,7 +199,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
         // Mostrarlo
         ae.setVisible(true);
-        this.setVisible(false);
     }//GEN-LAST:event_btnEmpleadosActionPerformed
 
     private void btnViajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViajesActionPerformed
@@ -209,7 +208,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
         // Mostrarlo
         av.setVisible(true);
-        this.setVisible(false);
     }//GEN-LAST:event_btnViajesActionPerformed
 
     private void btnClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientesActionPerformed
@@ -219,7 +217,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
         // Mostrarlo
         ac.setVisible(true);
-        this.setVisible(false);
     }//GEN-LAST:event_btnClientesActionPerformed
 
     /**

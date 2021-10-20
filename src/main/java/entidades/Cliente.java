@@ -51,10 +51,6 @@ public class Cliente implements Serializable {
     @Column(name = "fecha_nacimiento")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaNacimiento;
-    @Basic(optional = false)
-    @Lob
-    @Column(name = "correo")
-    private String correo;
     @JoinColumn(name = "id_viaje", referencedColumnName = "id_viaje")
     @ManyToOne(optional = false)
     private Viaje idViaje;
@@ -66,12 +62,12 @@ public class Cliente implements Serializable {
         this.idCliente = idCliente;
     }
 
-    public Cliente(Integer idCliente, String nombres, String apellidos, Date fechaNacimiento, String correo) {
+    public Cliente(Integer idCliente, String nombres, String apellidos, Date fechaNacimiento, Viaje idViaje) {
         this.idCliente = idCliente;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
-        this.correo = correo;
+        this.idViaje = idViaje;
     }
 
     public Integer getIdCliente() {
@@ -104,14 +100,6 @@ public class Cliente implements Serializable {
 
     public void setFechaNacimiento(Date fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
     }
 
     public Viaje getIdViaje() {

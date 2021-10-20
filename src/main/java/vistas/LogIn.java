@@ -24,7 +24,7 @@ public class LogIn extends javax.swing.JFrame {
     public LogIn() {
         initComponents();
         // Se agregan Validaciones Regrex
-        
+        inputCorreo.setDocument(new Validador(0));
     }
     /**
      * This method is called from within the constructor to initialize the form.

@@ -6,6 +6,7 @@
 package entidades;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -30,7 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Empleado.findAll", query = "SELECT e FROM Empleado e"),
     @NamedQuery(name = "Empleado.findByIdEmpleado", query = "SELECT e FROM Empleado e WHERE e.idEmpleado = :idEmpleado"),
     @NamedQuery(name = "Empleado.findByFechaNacimiento", query = "SELECT e FROM Empleado e WHERE e.fechaNacimiento = :fechaNacimiento"),
-    @NamedQuery(name = "Empleado.findByActivo", query = "SELECT e FROM Empleado e WHERE e.activo = :activo"),
     @NamedQuery(name = "Empleado.findByAdmin", query = "SELECT e FROM Empleado e WHERE e.admin = :admin")})
 public class Empleado implements Serializable {
 
@@ -58,10 +58,7 @@ public class Empleado implements Serializable {
     @Basic(optional = false)
     @Lob
     @Column(name = "password")
-    private String password;
-    @Basic(optional = false)
-    @Column(name = "activo")
-    private boolean activo;
+    private String password;    
     @Basic(optional = false)
     @Column(name = "admin")
     private boolean admin;
@@ -73,14 +70,13 @@ public class Empleado implements Serializable {
         this.idEmpleado = idEmpleado;
     }
 
-    public Empleado(Integer idEmpleado, String nombres, String apellidos, Date fechaNacimiento, String correo, String password, boolean activo, boolean admin) {
+    public Empleado(Integer idEmpleado, String nombres, String apellidos, Date fechaNacimiento, String correo, String password, boolean admin) {
         this.idEmpleado = idEmpleado;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
         this.correo = correo;
         this.password = password;
-        this.activo = activo;
         this.admin = admin;
     }
 
@@ -132,14 +128,6 @@ public class Empleado implements Serializable {
         this.password = password;
     }
 
-    public boolean getActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
-
     public boolean getAdmin() {
         return admin;
     }
@@ -172,5 +160,23 @@ public class Empleado implements Serializable {
     public String toString() {
         return "Empleado[ idEmpleado=" + idEmpleado + " ]";
     }
+    
+    public static String[] columnNames = {"ID Empleado", "Nombres", "Apellidos", "Fecha Nacimiento", "Admin"};
+    public String columnValue(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return this.getIdEmpleado().toString();
+            case 1:
+                return this.getNombres();
+            case 2:
+                return this.getApellidos();
+            case 3:
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy");
+                return formatter.format(this.getFechaNacimiento());
+            case 4:
+                return this.getAdmin() ? "Si":"No";
+        }
+        return null;
+    } 
     
 }
