@@ -63,6 +63,16 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
         }
         return currentEmpleado;
     }
+    
+    private void writeEmpleado(Empleado empleado) {
+        inputIdEmpleado.setText(empleado.getIdEmpleado().toString());
+        inputNombres.setText(empleado.getNombres());
+        inputApellidos.setText(empleado.getApellidos());
+        inputCorreo.setText(empleado.getCorreo());
+        inputPassword.setText(empleado.getPassword());
+        inputAdmin.setSelected(empleado.getAdmin());
+        inputFechaNacimiento.setText(empleado.getFechaNacimientoString());
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -118,6 +128,11 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
                 "Encabezados"
             }
         ));
+        tablaEmpleados.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaEmpleadosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tablaEmpleados);
 
         btnAgregar.setText("Agregar");
@@ -129,9 +144,19 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
 
         btnEditar.setText("Modificar");
         btnEditar.setEnabled(false);
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
 
         btnEliminar.setText("Eliminar");
         btnEliminar.setEnabled(false);
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("Datos del Empleado:");
 
@@ -254,6 +279,7 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        inputIdEmpleado.setText("");
         inputAdmin.setSelected(false);
         inputNombres.setText("");
         inputApellidos.setText("");
@@ -261,7 +287,45 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
         inputPassword.setText("");
         inputFechaNacimiento.setText("");
         btnAgregar.setEnabled(true);
+        btnEditar.setEnabled(false);
+        btnEliminar.setEnabled(false);
     }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void tablaEmpleadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaEmpleadosMouseClicked
+        // Se busca la fila seleccionada de la tabla
+        int selectedRow = tablaEmpleados.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Empleado empleado = empleados.get(selectedRow);
+        writeEmpleado(empleado);
+        btnAgregar.setEnabled(false);
+        btnEditar.setEnabled(true);
+        btnEliminar.setEnabled(true);
+    }//GEN-LAST:event_tablaEmpleadosMouseClicked
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        int selectedRow = tablaEmpleados.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Empleado empleado = empleados.get(selectedRow);
+        Conexion.getInstance().destroy(empleado);
+        updateTable();
+        btnLimpiar.doClick();
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        Conexion conexion = Conexion.getInstance();
+        Empleado empleado = readEmpleado();
+        // Si el lectura brinda un empleado null se retorna
+        if(empleado == null){
+            return;
+        }
+        try {
+            // Se editar el objecto
+            conexion.edit(empleado);
+            updateTable();
+        } catch (Exception ex) {
+            Logger.getLogger(AdministrarEmpleados.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnEditarActionPerformed
 
     /**
      * @param args the command line arguments

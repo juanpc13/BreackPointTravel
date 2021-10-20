@@ -80,5 +80,15 @@ public class Conexion {
             System.out.println(ex);
         }
     }
+    
+    public void destroy(Object object) {
+        try {
+            em.getTransaction().begin();
+            em.remove(object);
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
 
 }

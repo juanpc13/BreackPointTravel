@@ -138,6 +138,11 @@ public class Empleado implements Serializable {
     public void setAdmin(boolean admin) {
         this.admin = admin;
     }
+    
+    public String getFechaNacimientoString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(this.fechaNacimiento);
+    }
 
     @Override
     public int hashCode() {
