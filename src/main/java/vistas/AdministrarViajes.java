@@ -150,8 +150,20 @@ public class AdministrarViajes extends javax.swing.JFrame {
         jLabel6.setText("Precio:");
 
         btnEliminar.setText("Eliminar");
+        btnEliminar.setEnabled(false);
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
 
         btnEditar.setText("Modificar");
+        btnEditar.setEnabled(false);
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
 
         btnAgregar.setText("Agregar");
         btnAgregar.addActionListener(new java.awt.event.ActionListener() {
@@ -177,6 +189,11 @@ public class AdministrarViajes extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tablaViajes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaViajesMouseClicked(evt);
             }
         });
         jScrollPane2.setViewportView(tablaViajes);
@@ -297,6 +314,42 @@ public class AdministrarViajes extends javax.swing.JFrame {
             Logger.getLogger(AdministrarEmpleados.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnAgregarActionPerformed
+
+    private void tablaViajesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaViajesMouseClicked
+        // Se busca la fila seleccionada de la tabla
+        int selectedRow = tablaViajes.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Viaje viaje = viajes.get(selectedRow);
+        writeEmpleado(viaje);
+        btnAgregar.setEnabled(false);
+        btnEditar.setEnabled(true);
+        btnEliminar.setEnabled(true);
+    }//GEN-LAST:event_tablaViajesMouseClicked
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        int selectedRow = tablaViajes.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Viaje viaje = viajes.get(selectedRow);
+        Conexion.getInstance().destroy(viaje);
+        updateTable();
+        btnLimpiar.doClick();
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        Conexion conexion = Conexion.getInstance();
+        Viaje viaje = readViaje();
+        // Si el lectura brinda un empleado null se retorna
+        if(viaje == null){
+            return;
+        }
+        try {
+            // Se editar el objecto
+            conexion.edit(viaje);
+            updateTable();
+        } catch (Exception ex) {
+            Logger.getLogger(AdministrarEmpleados.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnEditarActionPerformed
 
     /**
      * @param args the command line arguments
