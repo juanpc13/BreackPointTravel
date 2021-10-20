@@ -7,12 +7,15 @@ package entidades;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
@@ -41,6 +44,7 @@ public class Viaje implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_viaje")
     private Integer idViaje;
     @Basic(optional = false)
@@ -125,6 +129,11 @@ public class Viaje implements Serializable {
     public void setClienteList(List<Cliente> clienteList) {
         this.clienteList = clienteList;
     }
+    
+    public String getFechaViajeString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(this.fechaViaje);
+    }
 
     @Override
     public int hashCode() {
@@ -149,6 +158,25 @@ public class Viaje implements Serializable {
     @Override
     public String toString() {
         return "Viaje[ idViaje=" + idViaje + " ]";
+    }
+    
+    public static String[] columnNames = {"ID Viaje", "Nombre", "Destino", "Fecha", "Precio"};
+
+    public String columnValue(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return this.getIdViaje().toString();
+            case 1:
+                return this.getNombreViaje();
+            case 2:
+                return this.getNombreDestino();
+            case 3:
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy");
+                return formatter.format(this.getFechaViaje());
+            case 4:
+                return this.getPrecio().toString();
+        }
+        return null;
     }
     
 }

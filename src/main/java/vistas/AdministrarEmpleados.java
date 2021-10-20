@@ -39,7 +39,13 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
     private void updateTable(){
         Query q = Conexion.getInstance().getEm().createNamedQuery("Empleado.findAll");
         empleados = q.getResultList();
-        tablaEmpleados.setModel(new CustomTableModel(empleados, Empleado.columnNames));
+        tablaEmpleados.setModel(new CustomTableModel(empleados, Empleado.columnNames){
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                Empleado empleado = (Empleado) super.getLi().get(rowIndex);
+                return empleado.columnValue(columnIndex);
+            }
+        });
     }
     
     private Empleado readEmpleado() {

@@ -5,7 +5,6 @@
  */
 package utilidad;
 
-import entidades.Empleado;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -16,10 +15,10 @@ import javax.swing.table.AbstractTableModel;
  */
 public class CustomTableModel extends AbstractTableModel {
 
-    private List<Empleado> li = new ArrayList();
+    private List li = new ArrayList();
     private String[] columnNames;
 
-    public CustomTableModel(List<Empleado> list, String[] columnNames) {
+    public CustomTableModel(List list, String[] columnNames) {
         this.li = list;
         this.columnNames = columnNames;
     }
@@ -39,10 +38,15 @@ public class CustomTableModel extends AbstractTableModel {
         return columnNames.length;
     }
 
+    public List getLi() {
+        return li;
+    }
+
+    // METODO SE USA PARA SOBREESCRIBIRSE
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Empleado empleado = li.get(rowIndex);
-        return empleado.columnValue(columnIndex);
+        Object object = li.get(rowIndex);
+        return object.toString();
     }
 
     @Override
