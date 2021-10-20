@@ -34,10 +34,13 @@ public class Validador extends PlainDocument{
                 regex = "[A-Za-z ]{0,32}";
                 break;
             case 2://correo
-                regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}";
+                regex = "[A-Za-z0-9._-]+@{0,32}[A-Za-z0-9._-]{0,32}";
                 break;            
             case 3://numeros
                 regex = "[0-9]";
+                break;
+            case 4://fecha tipo date
+                regex = "[0-9/]{0,10}";
                 break;
             default:
                 regex = "";

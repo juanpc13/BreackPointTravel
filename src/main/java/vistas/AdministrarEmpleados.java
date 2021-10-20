@@ -6,10 +6,17 @@
 package vistas;
 
 import entidades.Empleado;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Query;
+import javax.swing.JOptionPane;
 import utilidad.Conexion;
 import utilidad.CustomTableModel;
+import utilidad.Validador;
 
 /**
  *
@@ -23,15 +30,19 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
     public AdministrarEmpleados() {
         initComponents();
         updateTable();
+        inputNombres.setDocument(new Validador(1));             //Modo de validacion 1 es letras y espacio
+        inputApellidos.setDocument(new Validador(1));           //Modo de validacion 1 es letras y espacio
+        inputCorreo.setDocument(new Validador(2));              //Modo de validacion 2 es correo electronico
+        inputFechaNacimiento.setDocument(new Validador(4));     //Modo de validacion 4 es fecha
     }
     
-    public void updateTable(){
+    private void updateTable(){
         Query q = Conexion.getInstance().getEm().createNamedQuery("Empleado.findAll");
         empleados = q.getResultList();
         tablaEmpleados.setModel(new CustomTableModel(empleados, Empleado.columnNames));
     }
     
-    private Empleado readEmpleado(){
+    private Empleado readEmpleado() {
         Empleado currentEmpleado = new Empleado();
         if(!inputIdEmpleado.getText().isEmpty()){
             Integer id = Integer.parseInt(inputIdEmpleado.getText());
@@ -42,6 +53,14 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
         currentEmpleado.setCorreo(inputCorreo.getText());
         currentEmpleado.setPassword(inputPassword.getText());
         currentEmpleado.setAdmin(inputAdmin.isSelected());
+        try {
+            Date fechaNacimiento = new SimpleDateFormat("dd/MM/yyyy").parse(inputFechaNacimiento.getText());
+            currentEmpleado.setFechaNacimiento(fechaNacimiento);
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato de fecha es: dd/MM/yyyy\n Ejemplo: 31/12/2021");            
+            //System.out.println(e);
+            return null;
+        }
         return currentEmpleado;
     }
 
@@ -72,9 +91,9 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
         inputApellidos = new javax.swing.JTextField();
         inputCorreo = new javax.swing.JTextField();
         inputPassword = new javax.swing.JTextField();
-        inputFechaNacimiento = new javax.swing.JTextField();
         inputAdmin = new javax.swing.JCheckBox();
         btnLimpiar = new javax.swing.JButton();
+        inputFechaNacimiento = new javax.swing.JTextField();
 
         setTitle("Administrar Empleados");
 
@@ -109,12 +128,16 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
         });
 
         btnEditar.setText("Modificar");
+        btnEditar.setEnabled(false);
 
         btnEliminar.setText("Eliminar");
+        btnEliminar.setEnabled(false);
 
         jLabel6.setText("Datos del Empleado:");
 
         jLabel7.setText("ID Empleado:");
+
+        inputIdEmpleado.setEditable(false);
 
         inputAdmin.setText("Admin");
 
@@ -136,37 +159,35 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(btnEliminar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnLimpiar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnEditar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnAgregar))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel3)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel2)
-                                        .addComponent(jLabel1))
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel7))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(inputIdEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(32, 32, 32)
-                                        .addComponent(inputAdmin))
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(inputNombres, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(inputApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(inputCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(inputPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(inputFechaNacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel2)
+                                .addComponent(jLabel1))
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(inputIdEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(32, 32, 32)
+                                .addComponent(inputAdmin))
+                            .addComponent(inputNombres)
+                            .addComponent(inputApellidos)
+                            .addComponent(inputCorreo)
+                            .addComponent(inputPassword)
+                            .addComponent(inputFechaNacimiento))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnEliminar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnLimpiar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEditar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnAgregar)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -217,7 +238,19 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        // TODO add your handling code here:
+        Conexion conexion = Conexion.getInstance();
+        Empleado empleado = readEmpleado();
+        // Si el lectura brinda un empleado null se retorna
+        if(empleado == null){
+            return;
+        }
+        try {
+            // Se crea el objecto
+            conexion.create(empleado);
+            updateTable();
+        } catch (Exception ex) {
+            Logger.getLogger(AdministrarEmpleados.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed

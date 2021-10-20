@@ -11,6 +11,8 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
@@ -37,6 +39,7 @@ public class Empleado implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_empleado")
     private Integer idEmpleado;
     @Basic(optional = false)
@@ -58,7 +61,7 @@ public class Empleado implements Serializable {
     @Basic(optional = false)
     @Lob
     @Column(name = "password")
-    private String password;    
+    private String password;
     @Basic(optional = false)
     @Column(name = "admin")
     private boolean admin;
@@ -160,8 +163,9 @@ public class Empleado implements Serializable {
     public String toString() {
         return "Empleado[ idEmpleado=" + idEmpleado + " ]";
     }
-    
+
     public static String[] columnNames = {"ID Empleado", "Nombres", "Apellidos", "Fecha Nacimiento", "Admin"};
+
     public String columnValue(int columnIndex) {
         switch (columnIndex) {
             case 0:
@@ -174,9 +178,9 @@ public class Empleado implements Serializable {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy");
                 return formatter.format(this.getFechaNacimiento());
             case 4:
-                return this.getAdmin() ? "Si":"No";
+                return this.getAdmin() ? "Si" : "No";
         }
         return null;
-    } 
-    
+    }
+
 }

@@ -24,7 +24,7 @@ public class LogIn extends javax.swing.JFrame {
     public LogIn() {
         initComponents();
         // Se agregan Validaciones Regrex
-        inputCorreo.setDocument(new Validador(0));
+        inputCorreo.setDocument(new Validador(2));
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -146,7 +146,6 @@ public class LogIn extends javax.swing.JFrame {
             System.out.println(e);
             JOptionPane.showMessageDialog(null, "Error Interno no definido");
         }
-        
     }//GEN-LAST:event_btnIniciarActionPerformed
 
     /**
