@@ -128,7 +128,7 @@ public class LogIn extends javax.swing.JFrame {
         
         // Consulta Generada para Base de Datos
         String txtQuery = "SELECT e FROM Empleado e WHERE e.correo LIKE '" + correo + "'";
-        TypedQuery<Empleado> q = Conexion.getInstance().getEm().createQuery(txtQuery, Empleado.class);
+        TypedQuery<Empleado> q = Conexion.getInstance().getEntityManager().createQuery(txtQuery, Empleado.class);
         try {
             Empleado empleado = q.getSingleResult();
             if(empleado.getPassword().equals(inputPassword.getText())){

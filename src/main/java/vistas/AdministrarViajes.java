@@ -18,6 +18,7 @@ import javax.persistence.Query;
 import javax.swing.JOptionPane;
 import utilidad.Conexion;
 import utilidad.CustomTableModel;
+import utilidad.Validador;
 
 /**
  *
@@ -31,10 +32,14 @@ public class AdministrarViajes extends javax.swing.JFrame {
     public AdministrarViajes() {
         initComponents();
         updateTable();
+        inputNombre.setDocument(new Validador(1));              //Modo de validacion 1 es letras y espacio
+        inputDestino.setDocument(new Validador(1));             //Modo de validacion 1 es letras y espacio
+        inputPrecio.setDocument(new Validador(3));              //Modo de validacion 3 es numeros con punto
+        inputFecha.setDocument(new Validador(4));               //Modo de validacion 4 es fecha
     }
     
     private void updateTable(){
-        Query q = Conexion.getInstance().getEm().createNamedQuery("Viaje.findAll");
+        Query q = Conexion.getInstance().getEntityManager().createNamedQuery("Viaje.findAll");
         viajes = q.getResultList();
         tablaViajes.setModel(new CustomTableModel(viajes, Viaje.columnNames){
             @Override

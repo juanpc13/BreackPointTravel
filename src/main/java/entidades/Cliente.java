@@ -6,6 +6,7 @@
 package entidades;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -112,6 +113,11 @@ public class Cliente implements Serializable {
     public void setIdViaje(Viaje idViaje) {
         this.idViaje = idViaje;
     }
+    
+    public String getFechaNacimientoString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(this.fechaNacimiento);
+    }
 
     @Override
     public int hashCode() {
@@ -136,6 +142,27 @@ public class Cliente implements Serializable {
     @Override
     public String toString() {
         return "Cliente[ idCliente=" + idCliente + " ]";
+    }
+    
+    public static String[] columnNames = {"ID Cliente", "Nombres", "Apellidos", "Fecha Nacimiento", "Viaje", "Destino"};
+
+    public String columnValue(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return this.getIdCliente().toString();
+            case 1:
+                return this.getNombres();
+            case 2:
+                return this.getApellidos();
+            case 3:
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy");
+                return formatter.format(this.getFechaNacimiento());
+            case 4:
+                return this.idViaje.getNombreViaje();
+            case 5:
+                return this.idViaje.getNombreDestino();
+        }
+        return null;
     }
     
 }

@@ -37,7 +37,7 @@ public class AdministrarEmpleados extends javax.swing.JFrame {
     }
     
     private void updateTable(){
-        Query q = Conexion.getInstance().getEm().createNamedQuery("Empleado.findAll");
+        Query q = Conexion.getInstance().getEntityManager().createNamedQuery("Empleado.findAll");
         empleados = q.getResultList();
         tablaEmpleados.setModel(new CustomTableModel(empleados, Empleado.columnNames){
             @Override

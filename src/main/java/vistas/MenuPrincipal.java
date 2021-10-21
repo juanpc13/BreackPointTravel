@@ -6,6 +6,7 @@
 package vistas;
 
 import entidades.Empleado;
+import utilidad.Conexion;
 
 /**
  *
@@ -206,6 +207,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         if(av == null){
             av = new AdministrarViajes();
         }
+        // Se actualiza la cache de la conexion
+        Conexion.getInstance().clearCache();
         // Mostrarlo
         av.setVisible(true);
     }//GEN-LAST:event_btnViajesActionPerformed
@@ -215,8 +218,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
         if(ac == null){
             ac = new AdministrarClientes();
         }
+        // Se actualiza la cache de la conexion
+        Conexion.getInstance().clearCache();
         // Mostrarlo
         ac.setVisible(true);
+        ac.updateTable();
+        ac.updateLista();
     }//GEN-LAST:event_btnClientesActionPerformed
 
     /**

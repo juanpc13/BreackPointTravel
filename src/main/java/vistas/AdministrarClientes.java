@@ -5,17 +5,91 @@
  */
 package vistas;
 
+import entidades.Cliente;
+import entidades.Viaje;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.Query;
+import javax.swing.JOptionPane;
+import utilidad.Conexion;
+import utilidad.CustomTableModel;
+import utilidad.Validador;
+
 /**
  *
  * @author jcpleitez
  */
 public class AdministrarClientes extends javax.swing.JFrame {
 
-    /**
-     * Creates new form AdministrarClientes
-     */
+    private List<Cliente> clientes;
+    private List<Viaje> viajes;
+    
     public AdministrarClientes() {
         initComponents();
+        // Actualizaciones se realizan antes de entar al JForm si no realizar manual
+        //updateTable();
+        //updateLista();
+        inputNombres.setDocument(new Validador(1));             //Modo de validacion 1 es letras y espacio
+        inputApellidos.setDocument(new Validador(1));           //Modo de validacion 1 es letras y espacio
+        inputFechaNacimiento.setDocument(new Validador(4));     //Modo de validacion 4 es fecha
+    }
+    
+    public void updateTable(){
+        Query q = Conexion.getInstance().getEntityManager().createNamedQuery("Cliente.findAll");
+        clientes = q.getResultList();
+        tablaClientes.setModel(new CustomTableModel(clientes, Cliente.columnNames){
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                Cliente cliente = (Cliente) super.getLi().get(rowIndex);
+                return cliente.columnValue(columnIndex);
+            }
+        });
+    }
+    
+    public void updateLista(){
+        Query q = Conexion.getInstance().getEntityManager().createNamedQuery("Viaje.findAll");
+        viajes = q.getResultList();
+        // Se vacia el dropMenu
+        listaViajes.removeAllItems();
+        for (int i = 0; i < viajes.size(); i++) {
+            Viaje viaje = viajes.get(i);
+            listaViajes.addItem(viaje.getNombreViaje());
+        }
+    }
+    
+    private Cliente readCliente() {
+        Cliente cliente = new Cliente();
+        if(!inputIdCliente.getText().isEmpty()){
+            Integer id = Integer.parseInt(inputIdCliente.getText());
+            cliente.setIdCliente(id);
+        }
+        cliente.setNombres(inputNombres.getText());
+        cliente.setApellidos(inputApellidos.getText());
+        try {
+            Date fechaNacimiento = new SimpleDateFormat("dd/MM/yyyy").parse(inputFechaNacimiento.getText());
+            cliente.setFechaNacimiento(fechaNacimiento);
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato de fecha es: dd/MM/yyyy\n Ejemplo: 31/12/2021");            
+            //System.out.println(e);
+            return null;
+        }
+        // Se asigna el viaje
+        int selectedIndex = listaViajes.getSelectedIndex();
+        Viaje viaje = viajes.get(selectedIndex);
+        cliente.setIdViaje(viaje);
+        
+        return cliente;
+    }
+    
+    private void writeCliente(Cliente cliente) {
+        inputIdCliente.setText(cliente.getIdCliente().toString());
+        inputNombres.setText(cliente.getNombres());
+        inputApellidos.setText(cliente.getApellidos());
+        inputFechaNacimiento.setText(cliente.getFechaNacimientoString());
     }
 
     /**
@@ -31,19 +105,20 @@ public class AdministrarClientes extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        tablaClientes = new javax.swing.JTable();
+        btnAgregar = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
+        inputIdCliente = new javax.swing.JTextField();
+        inputNombres = new javax.swing.JTextField();
+        inputApellidos = new javax.swing.JTextField();
+        inputFechaNacimiento = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        listaViajes = new javax.swing.JComboBox<>();
+        btnLimpiar = new javax.swing.JButton();
 
         setTitle("Administrar Empleados");
 
@@ -53,32 +128,63 @@ public class AdministrarClientes extends javax.swing.JFrame {
 
         jLabel5.setText("Fecha Nacimiento:");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaClientes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null},
+                {null},
+                {null},
+                {null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Encabezados"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        tablaClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaClientesMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tablaClientes);
 
-        jButton1.setText("Agregar");
+        btnAgregar.setText("Agregar");
+        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Modificar");
+        btnEditar.setText("Modificar");
+        btnEditar.setEnabled(false);
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Eliminar");
+        btnEliminar.setText("Eliminar");
+        btnEliminar.setEnabled(false);
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("Datos del Cliente:");
 
         jLabel7.setText("ID Cliente:");
 
+        inputIdCliente.setEditable(false);
+
         jLabel3.setText("Viaje Solicitado:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1" }));
+        listaViajes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1" }));
+
+        btnLimpiar.setText("Limpiar");
+        btnLimpiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLimpiarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -90,13 +196,6 @@ public class AdministrarClientes extends javax.swing.JFrame {
                     .addComponent(jSeparator1)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -107,12 +206,21 @@ public class AdministrarClientes extends javax.swing.JFrame {
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(inputNombres, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(inputApellidos, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(inputFechaNacimiento, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(inputIdCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(listaViajes, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnEliminar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnLimpiar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEditar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnAgregar)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -123,28 +231,29 @@ public class AdministrarClientes extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputIdCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputNombres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputFechaNacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(listaViajes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(btnAgregar)
+                    .addComponent(btnEditar)
+                    .addComponent(btnEliminar)
+                    .addComponent(btnLimpiar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -155,6 +264,68 @@ public class AdministrarClientes extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        inputIdCliente.setText("");
+        inputNombres.setText("");
+        inputApellidos.setText("");
+        inputFechaNacimiento.setText("");
+        btnAgregar.setEnabled(true);
+        btnEditar.setEnabled(false);
+        btnEliminar.setEnabled(false);
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
+        Conexion conexion = Conexion.getInstance();
+        Cliente cliente = readCliente();
+        // Si el lectura brinda un empleado null se retorna
+        if(cliente == null){
+            return;
+        }
+        try {
+            // Se crea el objecto
+            conexion.create(cliente);
+            updateTable();
+        } catch (Exception ex) {
+            Logger.getLogger(AdministrarClientes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnAgregarActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        Conexion conexion = Conexion.getInstance();
+        Cliente cliente = readCliente();
+        // Si el lectura brinda un empleado null se retorna
+        if(cliente == null){
+            return;
+        }
+        try {
+            // Se editar el objecto
+            conexion.edit(cliente);
+            updateTable();
+        } catch (Exception ex) {
+            Logger.getLogger(AdministrarEmpleados.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        int selectedRow = tablaClientes.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Cliente cliente = clientes.get(selectedRow);
+        Conexion.getInstance().destroy(cliente);
+        updateTable();
+        btnLimpiar.doClick();
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void tablaClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaClientesMouseClicked
+        // Se busca la fila seleccionada de la tabla
+        int selectedRow = tablaClientes.getSelectedRow();
+        // Se obtiene el empleado de la lista actual
+        Cliente cliente = clientes.get(selectedRow);
+        writeCliente(cliente);
+        btnAgregar.setEnabled(false);
+        btnEditar.setEnabled(true);
+        btnEliminar.setEnabled(true);
+    }//GEN-LAST:event_tablaClientesMouseClicked
 
     /**
      * @param args the command line arguments
@@ -192,10 +363,14 @@ public class AdministrarClientes extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JButton btnAgregar;
+    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnLimpiar;
+    private javax.swing.JTextField inputApellidos;
+    private javax.swing.JTextField inputFechaNacimiento;
+    private javax.swing.JTextField inputIdCliente;
+    private javax.swing.JTextField inputNombres;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -204,10 +379,7 @@ public class AdministrarClientes extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField6;
+    private javax.swing.JComboBox<String> listaViajes;
+    private javax.swing.JTable tablaClientes;
     // End of variables declaration//GEN-END:variables
 }
