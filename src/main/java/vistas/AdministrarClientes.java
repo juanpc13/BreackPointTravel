@@ -120,7 +120,7 @@ public class AdministrarClientes extends javax.swing.JFrame {
         listaViajes = new javax.swing.JComboBox<>();
         btnLimpiar = new javax.swing.JButton();
 
-        setTitle("Administrar Empleados");
+        setTitle("Administrar Clientes");
 
         jLabel1.setText("Nombres:");
 

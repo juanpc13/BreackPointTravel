@@ -5,23 +5,36 @@
  */
 package vistas;
 
+import entidades.Cliente;
 import entidades.Empleado;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.swing.JOptionPane;
 import utilidad.Conexion;
+import utilidad.CustomTableModel;
 
 /**
  *
  * @author jcpleitez
  */
 public class MenuPrincipal extends javax.swing.JFrame {
-    
+
     // Empleado logeado
     private Empleado empleado;
     // Vistas que administra
     private AdministrarEmpleados ae;
     private AdministrarViajes av;
     private AdministrarClientes ac;
-    
-    
+
+    private List<Cliente> clientes;
+
     public MenuPrincipal() {
         initComponents();
     }
@@ -29,6 +42,16 @@ public class MenuPrincipal extends javax.swing.JFrame {
     public void setEmpleado(Empleado empleado) {
         this.empleado = empleado;
         btnEmpleados.setEnabled(empleado.getAdmin());
+    }
+    
+    public void updateTable(){
+        tablaResultados.setModel(new CustomTableModel(clientes, Cliente.columnNames){
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                Cliente cliente = (Cliente) super.getLi().get(rowIndex);
+                return cliente.columnValue(columnIndex);
+            }
+        });
     }
 
     /**
@@ -53,9 +76,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaResultados = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        inputIdViaje = new javax.swing.JTextField();
+        inputNombreCliente = new javax.swing.JTextField();
+        inputFechaViaje = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        inputIdCliente = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Menu Principal");
@@ -86,23 +111,28 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jLabel2.setText("Buscar Viajes:");
 
         btnBuscar.setText("Buscar Viajes");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("ID Viaje:");
 
         jLabel4.setText("Nombre Cliente:");
 
-        jLabel5.setText("Rango Fechas:");
+        jLabel5.setText("Fecha del Viaje:");
 
         tablaResultados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null}
+                {null}
             },
             new String [] {
-                "ID Viaje", "Cliente", "Viaje", "Destino", "Fecha Viaje", "Precio"
+                "Encabezados"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -112,12 +142,9 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tablaResultados);
         if (tablaResultados.getColumnModel().getColumnCount() > 0) {
             tablaResultados.getColumnModel().getColumn(0).setResizable(false);
-            tablaResultados.getColumnModel().getColumn(1).setResizable(false);
-            tablaResultados.getColumnModel().getColumn(2).setResizable(false);
-            tablaResultados.getColumnModel().getColumn(3).setResizable(false);
-            tablaResultados.getColumnModel().getColumn(4).setResizable(false);
-            tablaResultados.getColumnModel().getColumn(5).setResizable(false);
         }
+
+        jLabel6.setText("ID Cliente:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -136,23 +163,26 @@ public class MenuPrincipal extends javax.swing.JFrame {
                         .addComponent(btnViajes)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnClientes))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(56, 56, 56)
-                                .addComponent(jLabel3)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addGap(33, 33, 33)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(btnBuscar))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(btnBuscar, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(inputNombreCliente, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                                    .addComponent(inputFechaViaje, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(inputIdViaje, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                                        .addComponent(inputIdCliente, javax.swing.GroupLayout.Alignment.LEADING)))
+                                .addGap(147, 147, 147)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -167,25 +197,35 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnBuscar)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel6))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 9, Short.MAX_VALUE)
+                        .addComponent(inputIdCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnBuscar, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
+                            .addComponent(inputIdViaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(inputNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
+                            .addComponent(inputFechaViaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -195,7 +235,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     private void btnEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmpleadosActionPerformed
         // Si no se encuentra instanciado crearlo
-        if(ae == null){
+        if (ae == null) {
             ae = new AdministrarEmpleados();
         }
         // Mostrarlo
@@ -204,7 +244,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     private void btnViajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViajesActionPerformed
         // Si no se encuentra instanciado crearlo
-        if(av == null){
+        if (av == null) {
             av = new AdministrarViajes();
         }
         // Se actualiza la cache de la conexion
@@ -215,7 +255,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     private void btnClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientesActionPerformed
         // Si no se encuentra instanciado crearlo
-        if(ac == null){
+        if (ac == null) {
             ac = new AdministrarClientes();
         }
         // Se actualiza la cache de la conexion
@@ -225,6 +265,64 @@ public class MenuPrincipal extends javax.swing.JFrame {
         ac.updateTable();
         ac.updateLista();
     }//GEN-LAST:event_btnClientesActionPerformed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        // Se valida que alguno tenga algun filtro con texto
+        if(inputIdCliente.getText().isEmpty() && inputIdViaje.getText().isEmpty() && 
+                inputNombreCliente.getText().isEmpty() && inputFechaViaje.getText().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Favor completar algun metodo de busqueda");
+            return;
+        }
+        // Query en texto plano se construye
+        String txtQuery = "SELECT c FROM Cliente c WHERE TRUE = TRUE ";
+        if (!inputIdCliente.getText().isEmpty()) {
+            txtQuery += " AND ";
+            txtQuery += "c.idCliente = " + inputIdCliente.getText();
+        }
+        if(!inputIdViaje.getText().isEmpty()){
+            txtQuery += " AND ";
+            txtQuery += "c.idViaje.idViaje = " + inputIdViaje.getText();
+        }
+        if(!inputNombreCliente.getText().isEmpty()){
+            txtQuery += " AND ";
+            txtQuery += "CONCAT(LOWER(c.nombres), ' ', LOWER(c.apellidos)) LIKE CONCAT('%', LOWER(:txtFullName), '%')";
+        }
+        if (!inputFechaViaje.getText().isEmpty()) {
+            txtQuery += " AND ";
+            txtQuery += "c.idViaje.fechaViaje BETWEEN :fechaInicio AND :fechaFinal";
+        }
+        txtQuery += " ORDER BY c.idViaje.fechaViaje ASC";
+        
+        // Se crea la consulta con la conexion
+        TypedQuery<Cliente> q = Conexion.getInstance().getEntityManager().createQuery(txtQuery, Cliente.class);
+        
+        // Se completan los parametros
+        if(!inputNombreCliente.getText().isEmpty()){
+            q.setParameter("txtFullName", inputNombreCliente.getText());
+        }
+        if (!inputFechaViaje.getText().isEmpty()) {
+            try {
+                Calendar calendar = Calendar.getInstance();
+                Date fechaViaje = new SimpleDateFormat("dd/MM/yyyy").parse(inputFechaViaje.getText());
+                calendar.setTime(fechaViaje);
+                // Inicio desde las 12AM
+                calendar.set(Calendar.HOUR_OF_DAY, 0);calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);calendar.set(Calendar.MILLISECOND, 0);
+                q.setParameter("fechaInicio", calendar.getTime());
+                // Fin hasta las 11:59:59.999PM
+                calendar.set(Calendar.HOUR_OF_DAY, 23);calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);calendar.set(Calendar.MILLISECOND, 999);
+                q.setParameter("fechaFinal", calendar.getTime());
+            } catch (ParseException ex) {
+                //Logger.getLogger(MenuPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Formato de fecha es: dd/MM/yyyy\n Ejemplo: 31/12/2021");            
+            }
+        }
+        
+        q.setMaxResults(50);
+        clientes = q.getResultList();
+        updateTable();
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -266,17 +364,19 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnClientes;
     private javax.swing.JButton btnEmpleados;
     private javax.swing.JButton btnViajes;
+    private javax.swing.JTextField inputFechaViaje;
+    private javax.swing.JTextField inputIdCliente;
+    private javax.swing.JTextField inputIdViaje;
+    private javax.swing.JTextField inputNombreCliente;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTable tablaResultados;
     // End of variables declaration//GEN-END:variables
 }
