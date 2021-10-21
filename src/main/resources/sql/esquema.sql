@@ -1,3 +1,7 @@
+CREATE DATABASE dbViajes;
+
+USE dbViajes;
+
 CREATE TABLE cliente (
 	id_cliente integer NOT NULL AUTO_INCREMENT,
 	id_viaje integer NOT NULL,
